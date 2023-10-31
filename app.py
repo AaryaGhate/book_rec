@@ -11,6 +11,8 @@ product_similarity = cosine_similarity(interaction_matrix.T)
 
 # Function to get book recommendations based on book name and author
 def get_recommendations(user_id, book_name, author, interaction_matrix, product_similarity, num_recommendations=50):
+    if user_id not in interaction_matrix.index:
+        return None
     user_interactions = interaction_matrix.loc[user_id].values
     similar_scores = product_similarity.dot(user_interactions)
     recommended_indices = similar_scores.argsort()[-num_recommendations:][::-1]
