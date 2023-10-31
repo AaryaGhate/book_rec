@@ -9,60 +9,57 @@ data = pd.read_csv("newdata.csv")
 interaction_matrix = data.pivot_table(index='User ID', columns='book id', values='Rating', fill_value=0)
 product_similarity = cosine_similarity(interaction_matrix.T)
 
-# Function to get product recommendations based on product name and category
-def get_recommendations(user_id, product_name, category, interaction_matrix, product_similarity, num_recommendations=50):
+# Function to get book recommendations based on book name and author
+def get_recommendations(user_id, book_name, author, interaction_matrix, product_similarity, num_recommendations=50):
     user_interactions = interaction_matrix.loc[user_id].values
     similar_scores = product_similarity.dot(user_interactions)
     recommended_indices = similar_scores.argsort()[-num_recommendations:][::-1]
-    recommended_products = interaction_matrix.columns[recommended_indices]
+    recommended_books = interaction_matrix.columns[recommended_indices]
     
-    # Filter recommended products by product name and category
-    filtered_products = filter_by_product_name_and_category(recommended_products, product_name, category)
+    # Filter recommended books by book name and author
+    filtered_books = filter_by_book_name_and_author(recommended_books, book_name, author)
     
-    return filtered_products
+    return filtered_books
 
-# Function to filter recommended products by product name and category
-def filter_by_product_name_and_category(products, product_name, category):
-    filtered_products = data[data['book name'] == product_name]
-    filtered_products = filtered_products[filtered_products['author'] == category]
-    return filtered_products
+# Function to filter recommended books by book name and author
+def filter_by_book_name_and_author(books, book_name, author):
+    filtered_books = data[data['book name'] == book_name]
+    filtered_books = filtered_books[filtered_books['author'] == author]
+    return filtered_books
 
 # Streamlit app
 def main():
-    
     st.set_page_config(
-        page_title="Fashion Product Recommender",
-        page_icon="🛍️",
-        
+        page_title="Book Recommender",
+        page_icon="📚"
     )
 
-    
-    st.title("Fashion Product Recommender")
-    st.markdown("Discover personalized product recommendations.")
+    st.title("Book Recommender")
+    st.markdown("Discover personalized book recommendations.")
     
     # User input
     user_id = st.number_input("Enter User ID", min_value=1, max_value=1000)
-    product_name = st.selectbox("Select Product Name", data['book name'].unique())
-    category = st.selectbox("Select Category", data['author'].unique())
+    book_name = st.selectbox("Select Book Name", data['book name'].unique())
+    author = st.selectbox("Select Author", data['author'].unique())
    
     # Recommendation button
     if st.button("Get Recommendations"):
-        recommendations = get_recommendations(user_id, product_name, category, interaction_matrix, product_similarity)
+        recommendations = get_recommendations(user_id, book_name, author, interaction_matrix, product_similarity)
         
         if len(recommendations) > 10:
-            random_recommendations = random.sample(list(recommendations['book id']), 10)
+            random_recommendations = random.sample(list(recommendations), 10)
         else:
-            random_recommendations = list(recommendations['book id'])
+            random_recommendations = list(recommendations)
         
-        # Display recommended products
-        st.subheader("Recommended Products:")
-        recommended_products_info = data[data['book id'].isin(random_recommendations)][['book id', 'book name', 'author', 'genre', 'Price', 'Rating', 'publication', 'number of pages']]
-        st.table(recommended_products_info)
+        # Display recommended books
+        st.subheader("Recommended Books:")
+        recommended_books_info = data[data['book id'].isin(random_recommendations)][['book id', 'book name', 'author', 'genre', 'Price', 'Rating', 'publication', 'number of pages']]
+        st.table(recommended_books_info)
         
         # Display user's history
         st.subheader("User History:")
-        user_products_info = data[data['User ID'] == user_id][['book name', 'author', 'genre', 'Price', 'Rating', 'publication', 'number of pages']].drop_duplicates()
-        st.table(user_products_info)
+        user_books_info = data[data['User ID'] == user_id][['book name', 'author', 'genre', 'Price', 'Rating', 'publication', 'number of pages']].drop_duplicates()
+        st.table(user_books_info)
 
 if __name__ == "__main__":
     main()
