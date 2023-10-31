@@ -67,6 +67,5 @@ def main():
         st.subheader("User History:")
         user_products_info = data[data['User ID'] == user_id][['book name', 'author', 'genre', 'publication']].drop_duplicates()
         st.table(user_products_info)
-
-if _name_ == "_main_":
+if __name__ == "__main__":
     main()
