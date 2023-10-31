@@ -3,6 +3,7 @@ import pandas as pd
 import random
 from sklearn.metrics.pairwise import cosine_similarity
 
+# Load data
 data = pd.read_csv("newdata.csv")
 
 # Create interaction matrix and find similarity
@@ -10,9 +11,10 @@ interaction_matrix = data.pivot_table(index='User ID', columns='book id', values
 product_similarity = cosine_similarity(interaction_matrix.T)
 
 # Function to get book recommendations based on book name and author
-def get_recommendations(user_id, book_name, author, interaction_matrix, product_similarity, num_recommendations=50):
+def get_recommendations(user_id, book_name, author, interaction_matrix, product_similarity, num_recommendations=2):
     if user_id not in interaction_matrix.index:
         return None
+    
     user_interactions = interaction_matrix.loc[user_id].values
     similar_scores = product_similarity.dot(user_interactions)
     recommended_indices = similar_scores.argsort()[-num_recommendations:][::-1]
@@ -27,13 +29,14 @@ def get_recommendations(user_id, book_name, author, interaction_matrix, product_
 def filter_by_book_name_and_author(books, book_name, author):
     filtered_books = data[data['book name'] == book_name]
     filtered_books = filtered_books[filtered_books['author'] == author]
-    return filtered_books
+    return filtered_books['book id']
 
 # Streamlit app
 def main():
+    
     st.set_page_config(
         page_title="Book Recommender",
-        page_icon="📚"
+        page_icon="📚",
     )
 
     st.title("Book Recommender")
@@ -45,33 +48,22 @@ def main():
     author = st.selectbox("Select Author", data['author'].unique())
    
     # Recommendation button
-    
     if st.button("Get Recommendations"):
         recommendations = get_recommendations(user_id, book_name, author, interaction_matrix, product_similarity)
-    
-        if recommendations is not None:  # Check if recommendations are found
-            if len(recommendations) > 10:
-                random_recommendations = random.sample(list(recommendations), 10)
+        
+        if recommendations is not None and len(recommendations) > 0:
+            random_recommendations = random.sample(list(recommendations), min(2, len(recommendations)))
+        
+            # Display recommended books
+            st.subheader("Recommended Books:")
+            recommended_books_info = data[data['book id'].isin(random_recommendations)][['book id', 'book name', 'author', 'genre', 'Price', 'Rating', 'publication', 'number of pages']]
+            
+            if not recommended_books_info.empty:
+                st.table(recommended_books_info)
+            else:
+                st.subheader("No Recommendations Found")
         else:
-            random_recommendations = list(recommendations)
-        
-        # Display recommended books
-        st.subheader("Recommended Books:")
-        recommended_books_info = data[data['book id'].isin(random_recommendations)][['book id', 'book name', 'author', 'genre', 'Price', 'Rating', 'publication', 'number of pages']]
-        st.table(recommended_books_info)
-    else:
-        st.subheader("No Recommendations Found")  # Display a message if no recommendations are found
-
-        
-        # Display recommended books
-        st.subheader("Recommended Books:")
-        recommended_books_info = data[data['book id'].isin(random_recommendations)][['book id', 'book name', 'author', 'genre', 'Price', 'Rating', 'publication', 'number of pages']]
-        st.table(recommended_books_info)
-        
-        # Display user's history
-        st.subheader("User History:")
-        user_books_info = data[data['User ID'] == user_id][['book name', 'author', 'genre', 'Price', 'Rating', 'publication', 'number of pages']].drop_duplicates()
-        st.table(user_books_info)
+            st.subheader("No Recommendations Found")
 
 if __name__ == "__main__":
     main()
