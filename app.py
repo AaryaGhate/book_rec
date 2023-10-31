@@ -3,11 +3,7 @@ import pandas as pd
 import random
 from sklearn.metrics.pairwise import cosine_similarity
 
-
-
 data = pd.read_csv("newdata.csv")
-
-
 
 # Create interaction matrix and find similarity
 interaction_matrix = data.pivot_table(index='User ID', columns='book id', values='Rating', fill_value=0)
@@ -42,7 +38,7 @@ def main():
 
     
     st.title("Fashion Product Recommender")
-    st.markdown("Discover personalized  product recommendations.")
+    st.markdown("Discover personalized product recommendations.")
     
     # User input
     user_id = st.number_input("Enter User ID", min_value=1, max_value=1000)
@@ -60,12 +56,13 @@ def main():
         
         # Display recommended products
         st.subheader("Recommended Products:")
-        recommended_products_info = data[data['book id'].isin(random_recommendations)][['book id', 'book name', 'author', 'genre', 'publication']]
+        recommended_products_info = data[data['book id'].isin(random_recommendations)][['book id', 'book name', 'author', 'genre', 'Price', 'Rating', 'publication', 'number of pages']]
         st.table(recommended_products_info)
         
         # Display user's history
         st.subheader("User History:")
-        user_products_info = data[data['User ID'] == user_id][['book name', 'author', 'genre', 'publication']].drop_duplicates()
+        user_products_info = data[data['User ID'] == user_id][['book name', 'author', 'genre', 'Price', 'Rating', 'publication', 'number of pages']].drop_duplicates()
         st.table(user_products_info)
+
 if __name__ == "__main__":
     main()
