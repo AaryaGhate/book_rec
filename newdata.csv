@@ -1,4 +1,4 @@
-User ID,book id,book name,auther,genre,Price,Rating,publication ,number of pages
+User ID,book id,book name,author,genre,Price,Rating,publication ,number of pages
 19,1,The Hitchhiker's Guide to the Galaxy,Agatha Christie,Fiction,40,1.043159211,"Alfred A. Knopf, Inc.",323
 97,2,Animal Farm,Alice Munro,Adventure,82,4.026416271,Bloomsbury Publishing Plc,432
 25,3,1984,Arundhati Roy,Chick lit,44,3.337937559,Doubleday Books,432
