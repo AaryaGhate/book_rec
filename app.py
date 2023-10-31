@@ -45,13 +45,23 @@ def main():
     author = st.selectbox("Select Author", data['author'].unique())
    
     # Recommendation button
+    
     if st.button("Get Recommendations"):
         recommendations = get_recommendations(user_id, book_name, author, interaction_matrix, product_similarity)
-        
-        if len(recommendations) > 10:
-            random_recommendations = random.sample(list(recommendations), 10)
+    
+        if recommendations is not None:  # Check if recommendations are found
+            if len(recommendations) > 10:
+                random_recommendations = random.sample(list(recommendations), 10)
         else:
             random_recommendations = list(recommendations)
+        
+        # Display recommended books
+        st.subheader("Recommended Books:")
+        recommended_books_info = data[data['book id'].isin(random_recommendations)][['book id', 'book name', 'author', 'genre', 'Price', 'Rating', 'publication', 'number of pages']]
+        st.table(recommended_books_info)
+    else:
+        st.subheader("No Recommendations Found")  # Display a message if no recommendations are found
+
         
         # Display recommended books
         st.subheader("Recommended Books:")
