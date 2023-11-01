@@ -11,7 +11,7 @@ def get_recommendations(book_name, genre, num_recommendations=2):
     if filtered_books.empty:
         return None
     
-    popular_recommendations = filtered_books.nlargest(num_recommendations, 'Rating')[['book id', 'book name', 'author', 'genre', 'Price', 'Rating', 'publication', 'number of pages']]
+    popular_recommendations = filtered_books.nlargest(num_recommendations, 'Rating')[['book name', 'genre']]
     return popular_recommendations
 
 # Streamlit app
